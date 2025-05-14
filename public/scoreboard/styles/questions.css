@@ -1,15 +1,15 @@
 :root {
     /* Main Colors */
-    --bg-color: #0a0e23;
+    --bg-color: transparent;
     --question-bg: linear-gradient(180deg, #0c3b7d 0%, #082655 100%);
     --answer-bg: linear-gradient(90deg, #07275b 0%, #051d42 100%);
     --answer-hover: linear-gradient(90deg, #0c3b7d 0%, #082655 100%);
     
     /* Letter badge colors */
-    --letter-a-bg: #fd9e25;
+    --letter-a-bg: #e91e63;
     --letter-b-bg: #00a2ff;
     --letter-c-bg: #00a2ff;
-    --letter-d-bg: #fd9e25;
+    --letter-d-bg: #e91e63;
     
     /* Correct/Wrong colors */
     --correct-color: #4adc6e;
@@ -124,7 +124,7 @@ body {
     position: relative;
     box-shadow: 0 0 10px rgba(0, 162, 255, 0.3);
     border: 2px solid var(--border-color);
-    opacity: 0;
+    opacity: 1;
     animation: fadeSlideIn 0.6s forwards;
     min-height: 70px;
     display: flex;

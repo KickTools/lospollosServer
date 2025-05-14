@@ -2,6 +2,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Connect to WebSocket server
     const socket = io();
     
+    // Debug connection
+    socket.on('connect', () => {
+        console.log('Contestant widget connected to server with ID:', socket.id);
+    });
+    
+    socket.on('connect_error', (error) => {
+        console.error('Socket connection error:', error);
+    });
+    
     // Get contestant ID from URL parameter
     const urlParams = new URLSearchParams(window.location.search);
     const contestantId = parseInt(urlParams.get('id')) || 0; // Default to 0 if not specified
@@ -18,10 +27,14 @@ document.addEventListener('DOMContentLoaded', () => {
     nameElement.textContent = "Loading...";
     scoreElement.textContent = "0";
     
-    // Listen for scoreboard updates
-    socket.on('updateScoreboard', (data) => {
+    // Listen for ALL possible scoreboard update events
+    socket.on('updateScoreboard', handleScoreboardUpdate);
+    socket.on('scoreboardData', handleScoreboardUpdate);
+    
+    function handleScoreboardUpdate(data) {
+        console.log('Received scoreboard data:', data);
         updateContestantDisplay(data.contestants, data.mode);
-    });
+    }
     
     function updateContestantDisplay(contestants, mode) {
         // Check if the contestant exists in the current mode
@@ -38,8 +51,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Listen for individual score updates
-    socket.on('scoreUpdate', (data) => {
+    // Listen for ALL possible score update events
+    socket.on('scoreUpdate', handleScoreUpdate);
+    socket.on('contestant:update', handleScoreUpdate);
+    socket.on('updateScore', handleScoreUpdate);
+    
+    function handleScoreUpdate(data) {
+        console.log('Received score update:', data);
         if (data.id === contestantId) {
             // Add animation class
             scoreElement.classList.add('score-change');
@@ -50,7 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Remove animation class after animation completes
             setTimeout(() => {
                 scoreElement.classList.remove('score-change');
-            }, 700);
+            }, 800); // Updated to 800ms to match animation duration
         }
-    });
+    }
+    
+    // Request initial data
+    socket.emit('getScoreboard');
 });

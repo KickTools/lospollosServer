@@ -1,0 +1,161 @@
+:root {
+    /* Main Color Palette (Aligned with Admin Dashboard) */
+    --primary: #00b7eb; /* Sky blue for main elements */
+    --primary-dark: #00a3d6; /* Darker sky blue */
+    --primary-light: #00b7eb; /* Lighter sky blue for highlights */
+    --secondary: #7b68ee; /* Vibrant purple for secondary elements */
+    --success: #00e676; /* Bright green for success states */
+    --danger: #e91e63; /* Magenta for emphasis */
+    --accent: #f200ff; /* Neon magenta for scores */
+    --accent-dark: #dd07e9; /* Darker neon magenta */
+    --background: transparent; /* Transparent for streaming overlay */
+    --scoreboard-background: #252525;
+    --surface: rgba(40, 40, 40, 0.3); /* Semi-transparent for cards */
+    --border: rgba(255, 255, 255, 0.2); /* Subtle white border */
+    --text-primary: #ffffff; /* Main text */
+    --text-secondary: #b0b0b0; /* Subtle text */
+    --text-accent: #f200ff; /* Neon magenta for scores */
+    --shadow-color: rgba(0, 0, 0, 0.4); /* Stronger shadow for depth */
+    --glow-color: rgba(0, 183, 235, 0.3); /* Sky blue glow */
+    --score-glow-color: rgba(242, 0, 255, 0.5); /* Neon magenta glow */
+    --anim-fast: 0.3s;
+    --anim-medium: 0.6s;
+    --anim-slow: 0.8s;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Rubik', sans-serif;
+    background-color: var(--background); /* Transparent */
+    color: var(--text-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.scoreboard-container {
+    width: 100%;
+    max-width: 800px; /* Reduced from 1000px */
+    background: var(--scoreboard-background); /* Darker background */
+    border-radius: 12px;
+    padding: 12px; /* Reduced from 20px */
+    border: 2px solid var(--primary-light); /* Lighter sky blue border */
+    box-shadow: 0 4px 12px var(--shadow-color), 0 0 20px var(--glow-color);
+    animation: fadeIn var(--anim-slow) ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.scoreboard-header {
+    text-align: center;
+    margin-bottom: 12px; /* Reduced from 20px */
+}
+
+.scoreboard-header h1 {
+    font-size: 2.5rem; /* Reduced from 4rem */
+    font-weight: 700;
+    letter-spacing: 1px;
+    background: linear-gradient(to right, var(--primary-light), var(--primary-light));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 1px 3px var(--shadow-color);
+    margin: 8px 0; /* Reduced from 10px */
+}
+
+.round-display {
+    font-size: 1.2rem; /* Reduced from 1.5rem */
+    font-weight: 600;
+    color: var(--text-primary);
+    background-color: var(--accent); /* Neon magenta */
+    padding: 4px 12px; /* Reduced from 5px 15px */
+    border-radius: 20px;
+    display: inline-block;
+    box-shadow: 0 2px 6px var(--shadow-color);
+}
+
+.contestants-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px; /* Reduced from 15px */
+    flex-wrap: wrap;
+    transition: all var(--anim-medium) ease;
+}
+
+.contestant {
+    flex: 1;
+    min-width: 150px; /* Reduced from 200px */
+    background: var(--surface); /* Semi-transparent */
+    border-radius: 10px; /* Reduced from 15px */
+    padding: 10px; /* Reduced from 15px */
+    text-align: center;
+    border: 1px solid var(--border); /* Subtle white border */
+    box-shadow: 0 3px 8px var(--shadow-color);
+    transition: all var(--anim-fast) ease;
+    animation: slideIn var(--anim-medium) ease;
+    animation-fill-mode: both;
+}
+
+@keyframes slideIn {
+    0% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+.contestant:nth-child(1) { animation-delay: 0.1s; }
+.contestant:nth-child(2) { animation-delay: 0.2s; }
+.contestant:nth-child(3) { animation-delay: 0.3s; }
+
+.contestant:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: 0.4s;
+}
+
+.contestant.highlight:before {
+    left: 100%;
+}
+
+.contestant-name {
+    font-size: 1.4rem; /* Reduced from 1.8rem */
+    margin-bottom: 6px; /* Reduced from 10px */
+    color: var(--text-primary);
+    text-shadow: 0 1px 2px var(--shadow-color);
+}
+
+.score {
+    font-size: 2.5rem; /* Reduced from 4rem */
+    font-weight: 700;
+    margin: 6px 0; /* Reduced from 10px */
+    color: var(--text-accent); /* Neon magenta */
+    text-shadow: 0 0 10px var(--score-glow-color);
+    transition: all var(--anim-fast) ease;
+}
+
+.mode-transition {
+    animation: modeChange var(--anim-slow) ease-in-out;
+}
+
+@keyframes modeChange {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(0.95); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.three-contestants .contestant {
+    flex-basis: calc(33.333% - 8px);
+}
