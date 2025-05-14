@@ -1,0 +1,38 @@
+# Node.js dependencies
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+
+# Build output
+dist/
+build/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE settings (add your specific IDE if needed)
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# npm package lock files (if you want to ignore them, but generally it's recommended to keep them)
+# package-lock.json
+# yarn.lock
+
+# Testing folders (if you're using a testing framework)
+coverage/
+test-results/
+
+# PM2 logs
+pm2/logs/
+
