@@ -1,0 +1,17 @@
+{
+  "name": "scoreboard",
+  "version": "1.0.0",
+  "description": "scoreboard for newlywed dating game",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^4.5.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}

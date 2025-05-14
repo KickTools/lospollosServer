@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoreboard Admin</title>
+    <link rel="stylesheet" href="styles/admin-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#0077b6">
+</head>
+
+<body>
+    <div class="login-container" id="login-container">
+        <h2>Admin Login</h2>
+        <form id="login-form">
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="input-group">
+                <label for="passcode">Passcode</label>
+                <input type="password" id="passcode" name="passcode" required>
+            </div>
+            <button type="submit" class="btn">Login</button>
+        </form>
+    </div>
+
+    <div class="admin-panel" id="admin-panel" style="display: none;">
+        <div class="panel-header">
+            <h2>Scoreboard Admin Panel</h2>
+            <button class="btn logout-btn" id="logout-btn">Logout</button>
+        </div>
+
+        <div class="controls-section">
+            <div class="mode-selector">
+                <label>Contestant Mode:</label>
+                <div class="toggle-container">
+                    <button class="toggle-btn active" data-mode="2">2 Players</button>
+                    <button class="toggle-btn" data-mode="3">3 Players</button>
+                </div>
+            </div>
+
+            <div class="round-control">
+                <label for="round">Round:</label>
+                <div class="round-buttons">
+                    <button class="btn round-btn" id="decrement-round">-</button>
+                    <input type="number" id="round" min="1" value="1">
+                    <button class="btn round-btn" id="increment-round">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="contestants-admin" id="contestants-admin">
+            <!-- Contestant controls will be dynamically generated here -->
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn reset-btn" id="reset-scores">Reset Scores</button>
+            <button class="btn reset-btn" id="reset-all">Reset Everything</button>
+        </div>
+
+        <!-- Replace your question form section with this updated version -->
+
+        <div class="question-form">
+            <div class="form-header">
+                <div class="input-group full-width">
+                    <label for="question-input">Question</label>
+                    <input type="text" id="question-input" placeholder="Enter your question here...">
+                </div>
+
+                <div class="team-selector">
+                    <label>Assign to Team:</label>
+                    <div class="team-buttons">
+                        <button class="team-btn" data-team="a">Team A</button>
+                        <button class="team-btn" data-team="b">Team B</button>
+                        <button class="team-btn" data-team="c">Team C</button>
+                        <button class="team-btn active" data-team="all">All Teams</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="answer-inputs">
+                <div class="input-group half-width">
+                    <label for="answer-a-input">Answer A</label>
+                    <input type="text" id="answer-a-input" placeholder="Option A">
+                </div>
+                <div class="input-group half-width">
+                    <label for="answer-b-input">Answer B</label>
+                    <input type="text" id="answer-b-input" placeholder="Option B">
+                </div>
+                <div class="input-group half-width">
+                    <label for="answer-c-input">Answer C</label>
+                    <input type="text" id="answer-c-input" placeholder="Option C">
+                </div>
+                <div class="input-group half-width">
+                    <label for="answer-d-input">Answer D</label>
+                    <input type="text" id="answer-d-input" placeholder="Option D">
+                </div>
+            </div>
+
+            <div class="correct-answer-selector">
+                <label>Select Correct Answer:</label>
+                <div class="answer-buttons">
+                    <button class="correct-btn" data-answer="a">A</button>
+                    <button class="correct-btn" data-answer="b">B</button>
+                    <button class="correct-btn" data-answer="c">C</button>
+                    <button class="correct-btn" data-answer="d">D</button>
+                </div>
+            </div>
+
+            <div class="question-buttons">
+                <button class="btn add-queue-btn" id="add-to-queue-btn">Add to Queue</button>
+                <button class="btn primary-btn" id="send-question-btn">Send Question Now</button>
+                <button class="btn" id="clear-question-btn">Clear Form</button>
+            </div>
+        </div>
+
+        <div class="question-queue-panel">
+    <div class="queue-header">
+        <h3>Question Queue</h3>
+        <button class="btn queue-control-btn" id="next-question-btn" disabled>Send Next Question</button>
+    </div>
+    
+    <div class="queue-status">
+        <div class="active-question">
+            <h4>Active Question: <span id="active-question-title">None</span></h4>
+            <div class="active-controls">
+                <button class="btn highlight-btn" id="show-answer-btn" disabled>Reveal Answer</button>
+                <button class="btn" id="reset-highlights-btn" disabled>Reset Highlights</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="question-list-container">
+        <div class="list-header">
+            <span>Upcoming Questions</span>
+            <div class="queue-filters">
+                <button class="queue-filter-btn active" data-team="all">All</button>
+                <button class="queue-filter-btn" data-team="a">Team A</button>
+                <button class="queue-filter-btn" data-team="b">Team B</button>
+                <button class="queue-filter-btn" data-team="c">Team C</button>
+            </div>
+            <div class="list-actions">
+                <button class="queue-small-btn" id="clear-queue-btn" title="Clear All"><span>🗑️ Clear All</span></button>
+            </div>
+        </div>
+        <div class="question-list" id="question-list">
+            <!-- Questions will be listed here -->
+            <div class="no-questions">No questions in queue</div>
+        </div>
+    </div>
+</div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/admin-script.js"></script>
+</body>
+
+</html>
