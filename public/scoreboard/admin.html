@@ -103,28 +103,30 @@
                         <button class="btn" id="clear-question-btn">Clear</button>
                     </div>
                 </div>
-                <div class="question-queue-panel">
-                    <div class="queue-header">
-                        <h4>Question Queue</h4>
-                        <button class="btn queue-control-btn" id="next-question-btn" disabled>Next Question</button>
-                    </div>
-                    <div class="queue-status">
-                        <div class="active-question">
-                            <span>Active: <span id="active-question-title">None</span></span>
-                            <div class="active-controls">
-                                <button class="btn highlight-btn" id="show-answer-btn" disabled>Reveal Answer</button>
-                                <button class="btn" id="reset-highlights-btn" disabled>Reset Highlights</button>
-                            </div>
+            </div>
+            
+            <!-- Question Queue Module (Moved to separate column) -->
+            <div class="module queue-module">
+                <div class="module-header">
+                    <h3>Question Queue</h3>
+                    <button class="btn queue-control-btn" id="next-question-btn" disabled>Next Question</button>
+                </div>
+                <div class="queue-status">
+                    <div class="active-question">
+                        <span>Active: <span id="active-question-title">None</span></span>
+                        <div class="active-controls">
+                            <button class="btn highlight-btn" id="show-answer-btn" disabled>Reveal Answer</button>
+                            <button class="btn" id="reset-highlights-btn" disabled>Reset Highlights</button>
                         </div>
                     </div>
-                    <div class="question-list-container">
-                        <div class="list-header">
-                            <span>Upcoming Questions</span>
-                            <button class="queue-small-btn" id="clear-queue-btn" title="Clear All">🗑️</button>
-                        </div>
-                        <div class="question-list" id="question-list">
-                            <div class="no-questions">No questions in queue</div>
-                        </div>
+                </div>
+                <div class="question-list-container">
+                    <div class="list-header">
+                        <span>Upcoming Questions</span>
+                        <button class="queue-small-btn" id="clear-queue-btn" title="Clear All">🗑️</button>
+                    </div>
+                    <div class="question-list" id="question-list">
+                        <div class="no-questions">No questions in queue</div>
                     </div>
                 </div>
             </div>

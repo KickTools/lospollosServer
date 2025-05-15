@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentMode = 2;
     let nameUpdateTimeouts = {};
     let isReceivingScoreboardUpdate = false;
-    
+
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const username = document.getElementById('username').value;
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         renderContestantControls();
         updateTeamButtons();
-
+        loadQuestionsFromDatabase();
         // Clear flag after rendering is complete
         isReceivingScoreboardUpdate = false;
     });
@@ -66,10 +66,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.toggle-btn').forEach(b => {
                     b.classList.toggle('active', parseInt(b.dataset.mode) === currentMode);
                 });
-                if (currentMode === 2 && currentContestants.length > 2) {
-                    currentContestants = currentContestants.slice(0, 2);
-                } else if (currentMode === 3 && currentContestants.length < 3) {
-                    while (currentContestants.length < 3) {
+
+                // Always match currentContestants.length to currentMode!
+                if (currentContestants.length > currentMode) {
+                    currentContestants = currentContestants.slice(0, currentMode);
+                } else if (currentContestants.length < currentMode) {
+                    while (currentContestants.length < currentMode) {
                         currentContestants.push({
                             id: currentContestants.length,
                             name: `Contestant ${currentContestants.length + 1}`,
@@ -77,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                     }
                 }
+
                 renderContestantControls();
                 updateScoreboard();
                 updateTeamButtons();
@@ -279,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    addToQueueBtn.addEventListener('click', () => {
+    addToQueueBtn.addEventListener('click', async () => {
         if (validateQuestionForm()) {
             const questionData = {
                 question: questionInput.value,
@@ -292,7 +295,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 correctAnswer: selectedCorrectAnswer,
                 team: selectedTeam
             };
+            
+            // Save to database first
+            await saveQuestionToDatabase(questionData);
+            
+            // Then add to local queue
             addToQuestionQueue(questionData);
+            
             if (questionQueue.length === 1) {
                 nextQuestionBtn.disabled = false;
             }
@@ -329,7 +338,23 @@ document.addEventListener('DOMContentLoaded', () => {
     nextQuestionBtn.addEventListener('click', () => {
         if (questionQueue.length > 0) {
             currentQuestionData = questionQueue.shift();
-            socket.emit('updateQuestion', currentQuestionData);
+            
+            // No need to save to database here, just mark it as used in the database
+            socket.emit('markQuestionAsUsed', { id: currentQuestionData.id });
+            
+            // Convert to the format expected by the display
+            const displayQuestion = {
+                text: currentQuestionData.question,
+                answers: [
+                    { text: currentQuestionData.answers.a, isCorrect: currentQuestionData.correctAnswer === 'a' },
+                    { text: currentQuestionData.answers.b, isCorrect: currentQuestionData.correctAnswer === 'b' },
+                    { text: currentQuestionData.answers.c, isCorrect: currentQuestionData.correctAnswer === 'c' },
+                    { text: currentQuestionData.answers.d, isCorrect: currentQuestionData.correctAnswer === 'd' }
+                ]
+            };
+            
+            socket.emit('updateQuestion', displayQuestion);
+            
             let teamText = currentQuestionData.team !== null ? ` (Team ${currentQuestionData.team + 1})` : '';
             activeQuestionTitle.textContent = truncateText(currentQuestionData.question, 40) + teamText;
             showAnswerBtn.disabled = false;
@@ -360,6 +385,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     clearQueueBtn.addEventListener('click', () => {
         if (questionQueue.length > 0 && confirm('Are you sure you want to clear all questions from the queue?')) {
+            // Clear from database
+            socket.emit('clearQueuedQuestions');
+            
+            // Clear local queue
             questionQueue.length = 0;
             renderQuestionQueue();
             nextQuestionBtn.disabled = true;
@@ -387,6 +416,61 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+        function saveQuestionToDatabase(questionData) {
+        // Convert the question data format to match what the server expects
+        const formattedQuestion = {
+            text: questionData.question,
+            answers: [
+                { text: questionData.answers.a, isCorrect: questionData.correctAnswer === 'a' },
+                { text: questionData.answers.b, isCorrect: questionData.correctAnswer === 'b' },
+                { text: questionData.answers.c, isCorrect: questionData.correctAnswer === 'c' },
+                { text: questionData.answers.d, isCorrect: questionData.correctAnswer === 'd' }
+            ],
+            team: questionData.team
+        };
+        
+        // Send to server for database storage
+        return new Promise((resolve) => {
+            socket.emit('saveQueuedQuestion', formattedQuestion, (response) => {
+                if (response && response.id) {
+                    questionData.id = response.id; // Store the database ID in our local object
+                }
+                resolve(response);
+            });
+        });
+    }
+
+        function loadQuestionsFromDatabase() {
+        socket.emit('getQueuedQuestions', {}, (response) => {
+            if (response && response.questions) {
+                // Clear the current queue
+                questionQueue.length = 0;
+                
+                // Add all questions from the database to our local queue
+                response.questions.forEach(dbQuestion => {
+                    // Convert from database format to our local format
+                    const queueQuestion = {
+                        id: dbQuestion.id,
+                        question: dbQuestion.text,
+                        answers: {
+                            a: dbQuestion.answers[0].text,
+                            b: dbQuestion.answers[1].text,
+                            c: dbQuestion.answers[2].text,
+                            d: dbQuestion.answers[3].text
+                        },
+                        correctAnswer: ['a', 'b', 'c', 'd'][dbQuestion.answers.findIndex(a => a.isCorrect)],
+                        team: dbQuestion.team
+                    };
+                    questionQueue.push(queueQuestion);
+                });
+                
+                // Render the updated queue
+                renderQuestionQueue();
+                nextQuestionBtn.disabled = questionQueue.length === 0;
+            }
+        });
+    }
+
     function addToQuestionQueue(questionData) {
         questionQueue.push(questionData);
         renderQuestionQueue();
@@ -394,8 +478,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function removeFromQuestionQueue(index) {
         if (index >= 0 && index < questionQueue.length) {
+            const questionToRemove = questionQueue[index];
+            
+            // Remove from database if it has an ID
+            if (questionToRemove.id) {
+                socket.emit('deleteQueuedQuestion', { id: questionToRemove.id });
+            }
+            
+            // Remove from local queue
             questionQueue.splice(index, 1);
             renderQuestionQueue();
+            
             if (questionQueue.length === 0) {
                 nextQuestionBtn.disabled = true;
             }

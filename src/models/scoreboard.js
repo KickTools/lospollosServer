@@ -70,8 +70,6 @@ class ScoreboardModel {
   }
 
   async updateScoreboard(data) {
-    // Log incoming data for debugging
-    console.log('Updating scoreboard with data:', JSON.stringify(data));
 
     // Update settings in the database
     await supabase
@@ -87,7 +85,6 @@ class ScoreboardModel {
 
     // Update contestants in the database
     for (const contestant of data.contestants) {
-      console.log('Updating contestant:', contestant);
 
       // Ensure we have all required fields for the update
       const updateData = {
@@ -182,6 +179,114 @@ class ScoreboardModel {
 
     this.currentQuestion = question;
     return question;
+  }
+
+  async saveQueuedQuestion(questionData) {
+    // Store question in Supabase
+    const { data: savedQuestion } = await supabase
+      .from('queued_questions')
+      .insert([
+        {
+          question_text: questionData.text,
+          team_id: questionData.team,
+          round_id: this.data.round,
+          is_used: false
+        }
+      ])
+      .select()
+      .single();
+
+      console.log("Saved question data:", savedQuestion);
+
+    if (savedQuestion && questionData.answers) {
+      // Store answers
+      const answersToInsert = questionData.answers.map(answer => ({
+        question_id: savedQuestion.id,
+        answer_text: answer.text,
+        is_correct: answer.isCorrect || false
+      }));
+
+      await supabase.from('queued_answers').insert(answersToInsert);
+    }
+
+    return savedQuestion;
+  }
+
+  async getQueuedQuestions() {
+    // Fetch all questions that have not been used yet
+    const { data: questions } = await supabase
+      .from('queued_questions')
+      .select(`
+        *,
+        queued_answers(*)
+      `)
+      .order('created_at', { ascending: true });
+
+    if (!questions) return [];
+
+    // Format the questions to match the expected structure
+    return questions.map(q => ({
+      id: q.id,
+      text: q.question_text,
+      team: q.team_id,
+      answers: q.queued_answers.map(a => ({
+        id: a.id,
+        text: a.answer_text,
+        isCorrect: a.is_correct
+      }))
+    }));
+  }
+
+  async deleteQueuedQuestion(id) {
+    // Delete the answers first to maintain referential integrity
+    await supabase
+      .from('queued_answers')
+      .delete()
+      .eq('question_id', id);
+
+    // Then delete the question
+    await supabase
+      .from('queued_questions')
+      .delete()
+      .eq('id', id);
+
+    return { success: true };
+  }
+
+  async clearQueuedQuestions() {
+    // Get all unused question IDs
+    const { data: questions } = await supabase
+      .from('queued_questions')
+      .select('id')
+      .eq('is_used', false);
+
+    if (questions && questions.length > 0) {
+      // Delete all answers for those questions
+      const questionIds = questions.map(q => q.id);
+
+      await supabase
+        .from('queued_answers')
+        .delete()
+        .in('question_id', questionIds);
+
+      // Then delete the questions
+      await supabase
+        .from('queued_questions')
+        .delete()
+        .in('id', questionIds);
+    }
+
+    return { success: true };
+  }
+
+  async markQuestionAsUsed(id) {
+    // Mark the question as used
+    await supabase
+      .from('queued_questions')
+      .update({ is_used: true })
+      .eq('id', id);
+
+    return { success: true };
   }
 
   async createContestant(name) {

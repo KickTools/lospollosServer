@@ -13,8 +13,6 @@ class ScoreboardApp {
   init(app, basePath = '/api/v1') {
     // Register scoreboard routes
     app.use(`${basePath}/app/scoreboard`, routes);
-    
-    console.log(`Scoreboard app initialized at ${basePath}/app/scoreboard`);
   }
 }
 

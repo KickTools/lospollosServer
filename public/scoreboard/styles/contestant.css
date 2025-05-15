@@ -1,11 +1,12 @@
 :root {
     /* Color palette */
     --color-background: transparent; /* Body background */
-    --color-text-primary: #ffffff; /* Main text color */
-    --color-text-accent: #e6a042; /* Gold-ish glow/accent */
+    --color-text-primary: #f2e2c8; /* Main text color */
+    --color-text-accent: #EEBC71 ; /* Gold-ish glow/accent */
+    --color-text-outline: #efb15b;
     --color-shadow: rgba(0, 0, 0, 0.2); /* Shadow (unused but kept for future) */
-    --color-glow: rgba(230, 160, 66, 0.3); /* Glow effect */
-    --color-score-glow: rgba(230, 160, 66, 0.5); /* Score glow */
+    --color-glow: #FCA83980; /* Glow effect */
+    --color-score-glow: #FCA83980; /* Score glow */
 
     /* Animation timings */
     --animation-fast: 0.3s;
@@ -47,6 +48,11 @@ body {
 }
 
 .contestant-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4rem;
+    align-items: center;
     width: 90%;
     max-width: 600px;
     text-align: center;
@@ -71,34 +77,25 @@ body {
     }
 }
 
-.contestant-card::before {
-    content: '';
-    position: absolute;
-    top: -150%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(
-        circle at center,
-        rgba(255, 255, 255, 0.05) 0%, /* Subtle to avoid background effect */
-        rgba(255, 255, 255, 0) 70%
-    );
-    animation: rotate 20s linear infinite;
-}
-
 @keyframes rotate {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
 .contestant-name {
-    font-family: 'Ballet Harmony', serif;
-    font-size: 2.8rem;
-    font-weight: 700;
-    margin-bottom: 8px;
+font-family: "amster", serif;
+font-weight: 400;
+font-style: italic;
+    font-size: 5rem;
     color: var(--color-text-primary);
     text-shadow: 0 0 10px var(--color-text-accent), 
-                 0 0 20px var(--color-text-accent);
+                 0 0 20px var(--color-text-accent),
+                 -1px -1px 2px var(--color-text-outline),
+                 1px -1px 2px var(--color-text-outline),
+                 -1px 1px 2px var(--color-text-outline),
+                 1px 1px 2px var(--color-text-outline);
+
+
     position: relative;
     z-index: 1;
 }
@@ -118,7 +115,7 @@ body {
                  0 0 30px var(--color-text-accent);
     transition: all var(--animation-fast) ease;
     position: relative;
-    line-height: 1em;
+    line-height: .5em;
 }
 
 .score-change {
