@@ -12,7 +12,6 @@ import scoreboardModel from './models/scoreboard.js';
 async function startServer() {
   try {
     // Initialize the scoreboard model
-    console.log('Initializing scoreboard data from Supabase...');
     await scoreboardModel.initialize();
     console.log('Scoreboard data initialized successfully');
 

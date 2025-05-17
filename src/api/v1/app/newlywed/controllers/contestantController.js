@@ -80,7 +80,7 @@ class ContestantController {
   // Sends team score update to connected clients
   async sendTeamScoreUpdate(req, res) {
     try {
-      const { score, name, teams } = req.body;
+      const { score, teams } = req.body;
       const id = parseInt(req.params.id);
       
       // Emit individual score update for single team widgets

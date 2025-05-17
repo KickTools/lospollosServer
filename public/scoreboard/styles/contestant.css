@@ -1,18 +1,11 @@
 :root {
-    /* Color palette */
     --color-background: transparent;
-    /* Body background */
     --color-text-primary: #f2e2c8;
-    /* Main text color */
     --color-text-accent: #EEBC71;
-    /* Gold-ish glow/accent */
     --color-text-outline: #efb15b;
     --color-shadow: rgba(0, 0, 0, 0.2);
-    /* Shadow (unused but kept for future) */
     --color-glow: #FCA83980;
-    /* Glow effect */
     --color-score-glow: #FCA83980;
-    /* Score glow */
 
     /* Animation timings */
     --animation-fast: 0.3s;

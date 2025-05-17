@@ -15,7 +15,7 @@ class ScoreboardModel {
 
   async initialize() {
     console.log("Initializing scoreboard data from Supabase...");
-    
+
     // Load game settings
     const { data: settings } = await supabase
       .from('game_settings')
@@ -32,7 +32,6 @@ class ScoreboardModel {
         { mode: this.data.mode, current_round: this.data.round }
       ]);
     }
-    console.log("Game settings initialized:", this.data);
 
     const { data: teams } = await supabase
       .from('teams')
@@ -41,7 +40,7 @@ class ScoreboardModel {
 
     if (teams && teams.length > 0) {
       this.data.teams = teams;
-    } 
+    }
 
     return this.data;
   }
@@ -92,6 +91,36 @@ class ScoreboardModel {
       round: this.data.round,
       mode: this.data.mode
     };
+  }
+
+  async updateGameSettings(settings) {
+    try {
+      if (settings.round !== undefined) {
+        this.data.round = parseInt(settings.round);
+      }
+
+      if (settings.mode !== undefined) {
+        this.data.mode = parseInt(settings.mode);
+      }
+
+      return this.data;
+    } catch (error) {
+      console.error('Error updating game settings:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all scoreboard data including round and mode
+   * @returns {Object} - Complete scoreboard data
+   */
+  async getData() {
+    try {
+      return this.data;
+    } catch (error) {
+      console.error('Error getting scoreboard data:', error);
+      throw error;
+    }
   }
 
   async updateScore(id, score) {
