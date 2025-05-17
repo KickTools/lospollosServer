@@ -1,4 +1,4 @@
-// src/api/v1/app/scoreboard/index.js
+// src/api/v1/app/newlywed/index.js
 import routes from './routes.js';
 
 /**
@@ -12,7 +12,7 @@ class ScoreboardApp {
    */
   init(app, basePath = '/api/v1') {
     // Register scoreboard routes
-    app.use(`${basePath}/app/scoreboard`, routes);
+    app.use(`${basePath}/app/newlywed`, routes);
   }
 }
 

@@ -168,7 +168,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Debounce the scoreboard update
                 clearTimeout(nameUpdateTimeouts[index]);
                 nameUpdateTimeouts[index] = setTimeout(() => {
-                    console.log(`Saving name update for contestant ${index}: ${e.target.value}`);
                     updateScoreboard(); // This sends the full scoreboard data to server
                 }, 1000); // 1 second delay
             });

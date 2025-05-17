@@ -1,14 +1,13 @@
 // src/server.js
 import dotenv from 'dotenv';
+dotenv.config();
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
-import createApp from './app/scoreboard/scoreboardApp.js';
+import createApp from './app/newlywed/scoreboardApp.js';
 import config from './config/index.js';
 import SocketService from './services/socketService.js';
 import scoreboardModel from './models/scoreboard.js';
 
-// Load environment variables
-dotenv.config();
 
 async function startServer() {
   try {

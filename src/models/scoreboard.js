@@ -7,13 +7,15 @@ class ScoreboardModel {
     this.data = {
       contestants: [],
       round: 1,
-      mode: 2 // Default to 2 contestants
+      mode: 3 // Default to 2 contestants
     };
 
     this.currentQuestion = null;
   }
 
   async initialize() {
+    console.log("Initializing scoreboard data from Supabase...");
+    
     // Load game settings
     const { data: settings } = await supabase
       .from('game_settings')
@@ -30,30 +32,16 @@ class ScoreboardModel {
         { mode: this.data.mode, current_round: this.data.round }
       ]);
     }
+    console.log("Game settings initialized:", this.data);
 
-    // Load contestants
-    const { data: contestants } = await supabase
-      .from('contestants')
+    const { data: teams } = await supabase
+      .from('teams')
       .select('*')
       .order('id', { ascending: true });
 
-    if (contestants && contestants.length > 0) {
-      this.data.contestants = contestants;
-    } else {
-      // Create default contestants if none exist
-      const defaultContestants = [
-        { name: 'Newlyweds 1', score: 0 },
-        { name: 'Newlyweds 2', score: 0 },
-        { name: 'Newlyweds 3', score: 0 }
-      ];
-
-      const { data } = await supabase
-        .from('contestants')
-        .insert(defaultContestants)
-        .select();
-
-      this.data.contestants = data || [];
-    }
+    if (teams && teams.length > 0) {
+      this.data.teams = teams;
+    } 
 
     return this.data;
   }
@@ -195,8 +183,6 @@ class ScoreboardModel {
       ])
       .select()
       .single();
-
-      console.log("Saved question data:", savedQuestion);
 
     if (savedQuestion && questionData.answers) {
       // Store answers

@@ -1,3 +1,5 @@
+// /js/contestant.js
+// use ?id=# 1-3 for contestant parameter
 document.addEventListener('DOMContentLoaded', () => {
     // Connect to WebSocket server
     const socket = io();
@@ -5,10 +7,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Debug connection
     socket.on('connect', () => {
         console.log('Contestant widget connected to server with ID:', socket.id);
+        
+        // Start periodic refresh after connection
+        startPeriodicRefresh();
     });
     
     socket.on('connect_error', (error) => {
         console.error('Socket connection error:', error);
+    });
+    
+    // Reconnection handling
+    socket.on('reconnect', () => {
+        console.log('Reconnected to server, requesting latest data');
+        socket.emit('getScoreboard');
     });
     
     // Get contestant ID from URL parameter
@@ -20,6 +31,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const scoreElement = document.getElementById('contestant-score');
     const contestantCard = document.querySelector('.contestant-card');
     
+    // Track current score to avoid unnecessary updates
+    let currentScore = null;
+    
     // Add contestant-specific class for styling
     contestantCard.classList.add(`contestant-${contestantId}`);
     
@@ -27,49 +41,74 @@ document.addEventListener('DOMContentLoaded', () => {
     nameElement.textContent = "Loading...";
     scoreElement.textContent = "0";
     
-    // Listen for ALL possible scoreboard update events
-    socket.on('updateScoreboard', handleScoreboardUpdate);
-    socket.on('scoreboardData', handleScoreboardUpdate);
-    
-    function handleScoreboardUpdate(data) {
-        console.log('Received scoreboard data:', data);
-        updateContestantDisplay(data.contestants, data.mode);
-    }
-    
-    function updateContestantDisplay(contestants, mode) {
-        // Check if the contestant exists in the current mode
-        if (contestantId < mode) {
-            const contestant = contestants.find(c => c.id === contestantId);
-            if (contestant) {
-                nameElement.textContent = contestant.name;
-                scoreElement.textContent = contestant.score;
+    // Handle scoreboard data updates (full data refresh)
+    socket.on('scoreboard:data', (data) => {
+        
+        if (data.teams && Array.isArray(data.teams)) {
+            // Find our team in the teams array
+            const myTeam = data.teams.find(team => team.id === contestantId);
+            
+            if (myTeam) {
+                // Always update name as it might change
+                nameElement.textContent = myTeam.name;
+                
+                // Update score without animation if it's a periodic refresh
+                // or if the score hasn't changed
+                if (currentScore === null || myTeam.score === currentScore) {
+                    scoreElement.textContent = myTeam.score;
+                } else if (myTeam.score !== currentScore) {
+                    // Add animation class only if score actually changed
+                    scoreElement.classList.add('score-change');
+                    scoreElement.textContent = myTeam.score;
+                    
+                    // Remove animation class after animation completes
+                    setTimeout(() => {
+                        scoreElement.classList.remove('score-change');
+                    }, 800);
+                }
+                
+                // Update current score reference
+                currentScore = myTeam.score;
+            } else {
+                nameElement.textContent = "Team Not Found";
+                scoreElement.textContent = "-";
+                currentScore = null;
             }
-        } else {
-            // Contestant not in current mode
-            nameElement.textContent = "Contestant Not Active";
-            scoreElement.textContent = "-";
         }
-    }
+    });
     
-    // Listen for ALL possible score update events
-    socket.on('scoreUpdate', handleScoreUpdate);
-    socket.on('contestant:update', handleScoreUpdate);
-    socket.on('updateScore', handleScoreUpdate);
-    
-    function handleScoreUpdate(data) {
-        console.log('Received score update:', data);
+    // Handle individual team score updates
+    socket.on('contestant:update', (data) => {
+        
         if (data.id === contestantId) {
             // Add animation class
             scoreElement.classList.add('score-change');
             
             // Update the score
             scoreElement.textContent = data.score;
+            currentScore = data.score;
             
             // Remove animation class after animation completes
             setTimeout(() => {
                 scoreElement.classList.remove('score-change');
-            }, 800); // Updated to 800ms to match animation duration
+            }, 800); // Match animation duration
         }
+    });
+    
+    // Set up periodic refresh to maintain connection and ensure data is current
+    function startPeriodicRefresh() {
+        // Request fresh data every 30 seconds without animation
+        const refreshInterval = setInterval(() => {
+            // Only refresh if socket is connected
+            if (socket.connected) {
+                socket.emit('getScoreboard');
+            }
+        }, 30000); // 30 seconds
+        
+        // Clean up interval on page unload
+        window.addEventListener('beforeunload', () => {
+            clearInterval(refreshInterval);
+        });
     }
     
     // Request initial data

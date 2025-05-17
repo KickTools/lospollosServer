@@ -1,12 +1,11 @@
-// src/app/scoreboard/scoreboardApp.js
+// src/app/newlywed/scoreboardApp.js
 import express from 'express';
-import path from 'path';
+import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import config from '../../config/index.js';
 
 // Import app modules
-import scoreboardApp from '../../api/v1/app/scoreboard/index.js';
+import scoreboardApp from '../../api/v1/app/newlywed/index.js';
 
 // Get current file directory with ES modules (replacement for __dirname)
 const __filename = fileURLToPath(import.meta.url);
@@ -21,6 +20,32 @@ function createApp() {
 
   // Middleware
   app.use(express.json());
+
+    // Set allowed origins based on environment
+  let allowedOrigins;
+  if (process.env.NODE_ENV === 'production') {
+    allowedOrigins = [
+      'https://www.lospollostv.app',
+      'https://lospollostv.app'
+    ];
+  } else {
+    allowedOrigins = ['http://localhost:3000'];
+  }
+
+  // CORS middleware
+  app.use(cors({
+    origin: function (origin, callback) {
+      // For tools like Postman or server-to-server calls, origin may be undefined
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        return callback(null, true);
+      } else {
+        return callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+  }));
+
   app.use(express.urlencoded({ extended: true }));
 
   // Serve static files
@@ -30,11 +55,11 @@ function createApp() {
   scoreboardApp.init(app);
 
   // Page routes
-  app.get('/app/scoreboard/scoreboard', (req, res) => {
+  app.get('/app/newlywed/scoreboard', (req, res) => {
     res.sendFile(join(__dirname, '..', '..', '..', 'public/scoreboard', 'scoreboard.html'));
   });
 
-  app.get('/app/scoreboard/contestant', (req, res) => {
+  app.get('/app/newlywed/contestant', (req, res) => {
     res.sendFile(join(__dirname, '..', '..', '..', 'public/scoreboard', 'contestant.html'));
   });
 
@@ -42,9 +67,11 @@ function createApp() {
     res.sendFile(join(__dirname, '..', '..', '..', 'public/scoreboard', 'admin.html'));
   });
 
-  app.get('/app/scoreboard/questions', (req, res) => {
+  app.get('/app/newlywed/questions', (req, res) => {
     res.sendFile(join(__dirname, '..', '..', '..', 'public/scoreboard', 'questions.html'));
   });
+
+  app.get('api',)
 
 
   // 404 handler

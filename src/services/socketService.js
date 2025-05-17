@@ -4,10 +4,12 @@ import scoreboardModel from '../models/scoreboard.js';
 import config from '../config/index.js';
 
 class SocketService {
+  static io = null;
+
   constructor(io) {
+    SocketService.io = io;
     this.io = io;
     this.setupListeners();
-
     console.log('Socket.io service initialized');
   }
 
@@ -15,38 +17,40 @@ class SocketService {
     this.io.on('connection', (socket) => {
       console.log(`Client connected: ${socket.id}`);
 
-      // Add admin login handler
-      socket.on('adminLogin', (credentials, callback) => {
-        // Check credentials against config
-        const validLogin = credentials.username === config.adminCredentials.username &&
-          credentials.passcode === config.adminCredentials.passcode;
+      // Send initial data
+      socket.on('getScoreboard', async () => {
+        try {
+          // Get latest data from database
+          await scoreboardModel.initialize();
+          const data = await scoreboardModel.getData();
 
-        console.log(`Login attempt: ${validLogin ? 'Success' : 'Failed'}`);
+          // Send to the requesting client
+          socket.emit('scoreboard:data', {
+            teams: data.teams || [],
+            round: data.round,
+            mode: data.mode
+          });
 
-        if (validLogin) {
-          // Successful login
-          callback({ success: true });
-        } else {
-          // Failed login
-          callback({ success: false });
+        } catch (error) {
+          console.error('Error sending scoreboard data:', error);
         }
       });
 
-      // Send initial data
-      socket.on('getScoreboard', async () => {
-        const data = await scoreboardModel.getData();
-        socket.emit('scoreboardData', {
-          contestants: data.contestants,
-          round: data.round,
-          mode: data.mode
-        });
-      });
-
       // Handle contestant events
-      socket.on('updateScore', this.handleContestantUpdate.bind(this));
-      socket.on('updateScoreboard', this.handleScoreboardUpdate.bind(this));
+      socket.on('score:update', this.handleContestantUpdate.bind(this));
+      socket.on('scoreboard:update', this.handleScoreboardUpdate.bind(this));
 
       // Handle question events
+      socket.on('question:display', this.handleQuestionUpdate.bind(this));
+      socket.on('question:change', this.handleQuestionUpdate.bind(this));
+      socket.on('choices:reveal', this.handleQuestionUpdate.bind(this));
+      socket.on('answer:reveal', this.handleQuestionUpdate.bind(this));
+      socket.on('answer:highlight', this.handleQuestionUpdate.bind(this));
+      socket.on('answer:reset', this.handleQuestionUpdate.bind(this));
+      socket.on('fact:display', this.handleQuestionUpdate.bind(this));
+      socket.on('fact:change', this.handleQuestionUpdate.bind(this));
+      socket.on('fact:reveal', this.handleQuestionUpdate.bind(this));
+
       socket.on('updateQuestion', this.handleQuestionUpdate.bind(this));
       socket.on('highlightAnswer', this.handleHighlightAnswer.bind(this));
       socket.on('resetHighlights', this.handleResetHighlights.bind(this));
@@ -95,17 +99,16 @@ class SocketService {
     }
   }
 
-    async handleSaveQueuedQuestion(questionData, callback) {
+  async handleSaveQueuedQuestion(questionData, callback) {
     try {
       const result = await scoreboardModel.saveQueuedQuestion(questionData);
-      console.log("Question Data:", questionData);
       if (callback) callback(result);
     } catch (error) {
       console.error('Error saving queued question:', error);
       if (callback) callback({ error: 'Failed to save question' });
     }
   }
-  
+
   async handleGetQueuedQuestions(data, callback) {
     try {
       const questions = await scoreboardModel.getQueuedQuestions();
@@ -115,7 +118,7 @@ class SocketService {
       if (callback) callback({ error: 'Failed to get questions' });
     }
   }
-  
+
   async handleDeleteQueuedQuestion(data, callback) {
     try {
       await scoreboardModel.deleteQueuedQuestion(data.id);
@@ -125,7 +128,7 @@ class SocketService {
       if (callback) callback({ error: 'Failed to delete question' });
     }
   }
-  
+
   async handleClearQueuedQuestions(data, callback) {
     try {
       await scoreboardModel.clearQueuedQuestions();
@@ -135,7 +138,7 @@ class SocketService {
       if (callback) callback({ error: 'Failed to clear questions' });
     }
   }
-  
+
   async handleMarkQuestionAsUsed(data, callback) {
     try {
       await scoreboardModel.markQuestionAsUsed(data.id);
