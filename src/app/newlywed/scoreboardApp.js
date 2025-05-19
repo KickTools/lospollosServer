@@ -32,10 +32,12 @@ function createApp() {
     allowedOrigins = ['http://localhost:3000'];
   }
 
+  // Serve static files
+  app.use(express.static(join(__dirname, '..', '..', '..', 'public')));
+
   // CORS middleware
   app.use(cors({
     origin: function (origin, callback) {
-      // For tools like Postman or server-to-server calls, origin may be undefined
       if (!origin) return callback(null, true);
       if (allowedOrigins.indexOf(origin) !== -1) {
         return callback(null, true);
@@ -47,9 +49,6 @@ function createApp() {
   }));
 
   app.use(express.urlencoded({ extended: true }));
-
-  // Serve static files
-  app.use(express.static(join(__dirname, '..', '..', '..', 'public')));
 
   // Register API routes
   scoreboardApp.init(app);
@@ -69,6 +68,8 @@ function createApp() {
 
   app.get('/app/newlywed/questions', (req, res) => {
     res.sendFile(join(__dirname, '..', '..', '..', 'public/scoreboard', 'questions.html'));
+    console.log('Questions page served');
+    console.log('Request URL:', req.url);
   });
 
   app.get('api',)

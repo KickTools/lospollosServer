@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,33 +8,60 @@
     <link rel="stylesheet" href="/scoreboard/styles/questions.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&display=swap" rel="stylesheet">
 </head>
+
 <body>
-    <div class="question-container" id="question-container">
-        <div class="question-box">
-            <div class="question-mark">?</div>
-            <div class="question-text" id="question-text">Waiting for question...</div>
-        </div>
-        
-        <div class="answers-container">
-            <div class="answer-row">
-                <div class="answer-box" id="answer-a">
-                    <div class="answer-letter">A</div>
-                    <div class="answer-text">Waiting...</div>
+    <div class="overlay-container" id="overlay-container">
+        <!-- Question Display -->
+        <!-- Question Display -->
+        <div class="question-container" id="question-container">
+            <div class="question-box">
+                <div class="question-mark">?</div>
+                <div class="question-text" id="question-text"></div>
+            </div>
+
+            <!-- Free Response Answer Container -->
+            <div class="free-response-answer hidden" id="free-response-answer">
+                <div class="free-response-answer-label">Answer:</div>
+                <div class="free-response-answer-text" id="free-response-answer-text"></div>
+                <div class="free-response-team" id="free-response-team"></div>
+            </div>
+
+            <!-- Multiple Choice Answers Container -->
+            <div class="answers-container" id="answers-container">
+                <div class="answer-row">
+                    <div class="answer-box hidden" id="answer-a">
+                        <div class="answer-letter">A</div>
+                        <div class="answer-text"></div>
+                    </div>
+                    <div class="answer-box hidden" id="answer-b">
+                        <div class="answer-letter">B</div>
+                        <div class="answer-text"></div>
+                    </div>
                 </div>
-                <div class="answer-box" id="answer-b">
-                    <div class="answer-letter">B</div>
-                    <div class="answer-text">Waiting...</div>
+                <div class="answer-row">
+                    <div class="answer-box hidden" id="answer-c">
+                        <div class="answer-letter">C</div>
+                        <div class="answer-text"></div>
+                    </div>
+                    <div class="answer-box hidden" id="answer-d">
+                        <div class="answer-letter">D</div>
+                        <div class="answer-text"></div>
+                    </div>
                 </div>
             </div>
-            <div class="answer-row">
-                <div class="answer-box" id="answer-c">
-                    <div class="answer-letter">C</div>
-                    <div class="answer-text">Waiting...</div>
-                </div>
-                <div class="answer-box" id="answer-d">
-                    <div class="answer-letter">D</div>
-                    <div class="answer-text">Waiting...</div>
-                </div>
+        </div>
+
+        <!-- Fact Display -->
+        <div class="fact-container hidden" id="fact-container">
+            <div class="fact-box">
+                <div class="fact-icon">!</div>
+                <div class="fact-text" id="fact-text"></div>
+            </div>
+            <!-- New combined fact answer container -->
+            <div class="fact-answer-container hidden" id="fact-answer-container">
+                <div class="fact-answer-label">Answer:</div>
+                <div class="fact-answer-text" id="fact-answer"></div>
+                <div class="fact-team-name" id="fact-team"></div>
             </div>
         </div>
     </div>
@@ -41,4 +69,5 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="/scoreboard/js/questions.js"></script>
 </body>
+
 </html>
