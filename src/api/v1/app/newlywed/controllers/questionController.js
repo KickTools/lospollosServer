@@ -4,6 +4,38 @@ import socketService from '../../../../../services/socketService.js';
 
 class QuestionController {
 
+  // Hide display (for both questions and facts)
+  async hideDisplay(req, res) {
+    try {
+      const { contentId } = req.body; // Can be questionId or factId
+      if (socketService.io) {
+        socketService.io.emit('display:hide', { contentId });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error hiding display:', error);
+      res.status(500).json({ error: 'Failed to hide display' });
+    }
+  }
+
+  // Show display (for both questions and facts)
+  async showDisplay(req, res) {
+    try {
+      const { contentId, contentType, isFreeResponse } = req.body; // contentType: 'question' or 'fact'
+      if (socketService.io) {
+        socketService.io.emit('display:show', {
+          contentId,
+          contentType: contentType || 'question', // Default to question if not specified
+          isFreeResponse: isFreeResponse || false
+        });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error showing display:', error);
+      res.status(500).json({ error: 'Failed to show display' });
+    }
+  }
+
   // Hide question display
   async hideQuestion(req, res) {
     try {
@@ -141,6 +173,12 @@ class QuestionController {
     try {
       const { answerId, answerText, isCorrect, teamId } = req.body;
 
+      const teamName = await scoreboardModel.getTeamName(teamId);
+      if (!teamName) {
+        console.error('Team not found for ID:', teamId);
+        return res.status(404).json({ error: 'Team not found' });
+      }
+
       // Create the data format expected by the client
       const answerData = {
         questionId: req.body.questionId, // Include if available
@@ -148,7 +186,8 @@ class QuestionController {
         answerText,  // The text of the answer
         isCorrect,   // Whether this is the correct answer
         teamId,      // Which team this answer belongs to
-        team: teamId // Alternative format for team ID expected by some handlers
+        team: teamId, // Alternative format for team ID expected by some handlers
+        teamName: teamName || teamId
       };
 
       // Notify connected clients via socket
@@ -263,12 +302,20 @@ class QuestionController {
     try {
       const { factId, factText, teamId, factAnswer } = req.body;
 
+      // Fetch the team name if needed
+      const teamName = await scoreboardModel.getTeamName(teamId);
+      if (!teamName) {
+        console.error('Team not found for ID:', teamId);
+        return res.status(404).json({ error: 'Team not found' });
+      }
+
       // Format data as expected by the client
       const factData = {
         factId,
         fact: factText,     // Client expects 'fact' property for the text
         team: teamId,       // Client expects 'team' property (numeric ID)
-        answer: factAnswer  // The answer to the fact
+        answer: factAnswer,  // The answer to the fact
+        teamName: teamName || teamId // Adding team name for display purposes
       };
 
       // Notify connected clients via socket

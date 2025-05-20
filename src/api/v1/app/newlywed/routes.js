@@ -19,6 +19,8 @@ router.post('/round/update', gameController.sendRoundUpdate);
 router.post('/contestants/:id/score', contestantController.sendTeamScoreUpdate);
 
 // Questions routes - these routes
+router.post('/display/show', questionController.showDisplay);
+router.post('/display/hide', questionController.hideDisplay);
 router.post('/questions/display', questionController.displayQuestion);
 router.post('/questions/hide', questionController.hideQuestion);
 router.post('/questions/show', questionController.showQuestion);

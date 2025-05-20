@@ -6,12 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Show Questions</title>
     <link rel="stylesheet" href="/scoreboard/styles/questions.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <div class="overlay-container" id="overlay-container">
-        <!-- Question Display -->
         <!-- Question Display -->
         <div class="question-container" id="question-container">
             <div class="question-box">
@@ -30,21 +31,17 @@
             <div class="answers-container" id="answers-container">
                 <div class="answer-row">
                     <div class="answer-box hidden" id="answer-a">
-                        <div class="answer-letter">A</div>
                         <div class="answer-text"></div>
                     </div>
                     <div class="answer-box hidden" id="answer-b">
-                        <div class="answer-letter">B</div>
                         <div class="answer-text"></div>
                     </div>
                 </div>
                 <div class="answer-row">
                     <div class="answer-box hidden" id="answer-c">
-                        <div class="answer-letter">C</div>
                         <div class="answer-text"></div>
                     </div>
                     <div class="answer-box hidden" id="answer-d">
-                        <div class="answer-letter">D</div>
                         <div class="answer-text"></div>
                     </div>
                 </div>
@@ -57,7 +54,7 @@
                 <div class="fact-icon">!</div>
                 <div class="fact-text" id="fact-text"></div>
             </div>
-            <!-- New combined fact answer container -->
+            <!-- Fact Answer Container -->
             <div class="fact-answer-container hidden" id="fact-answer-container">
                 <div class="fact-answer-label">Answer:</div>
                 <div class="fact-answer-text" id="fact-answer"></div>

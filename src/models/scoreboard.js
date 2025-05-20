@@ -61,7 +61,7 @@ class ScoreboardModel {
       throw error;
     }
   }
-
+  
   async getData() {
     try {
       return this.data;
@@ -70,6 +70,25 @@ class ScoreboardModel {
       throw error;
     }
   }
+
+  async getTeamName(teamId) {
+    try {
+      const { data: team, error } = await supabase
+        .from('teams')
+        .select('name')
+        .eq('id', teamId)
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      return team.name;
+    } catch (error) {
+      console.error('Error getting team name:', error);
+      throw error;
+    }
+  } 
 }
 
 // Create and initialize the singleton instance
