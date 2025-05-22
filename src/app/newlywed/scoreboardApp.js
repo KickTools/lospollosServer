@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import logger from '../../utils/logger.js';
 
 // Import app modules
 import scoreboardApp from '../../api/v1/app/newlywed/index.js';
@@ -21,7 +22,7 @@ function createApp() {
   // Middleware
   app.use(express.json());
 
-    // Set allowed origins based on environment
+  // Set allowed origins based on environment
   let allowedOrigins;
   if (process.env.NODE_ENV === 'production') {
     allowedOrigins = [
@@ -29,7 +30,7 @@ function createApp() {
       'https://lospollostv.app'
     ];
   } else {
-    allowedOrigins = ['http://localhost:3000'];
+    allowedOrigins = ['http://localhost:3000', 'http://localhost:4000'];
   }
 
   // Serve static files
@@ -42,6 +43,7 @@ function createApp() {
       if (allowedOrigins.indexOf(origin) !== -1) {
         return callback(null, true);
       } else {
+        logger.warn('CORS blocked request', { origin });
         return callback(new Error('Not allowed by CORS'));
       }
     },
@@ -55,34 +57,40 @@ function createApp() {
 
   // Page routes
   app.get('/app/newlywed/scoreboard', (req, res) => {
+    logger.debug('Scoreboard page requested', { ip: req.ip });
     res.sendFile(join(__dirname, '..', '..', '..', 'public/scoreboard', 'scoreboard.html'));
   });
 
   app.get('/app/newlywed/contestant', (req, res) => {
+    logger.debug('Contestant page requested', { ip: req.ip });
     res.sendFile(join(__dirname, '..', '..', '..', 'public/scoreboard', 'contestant.html'));
   });
 
   app.get('/admin', (req, res) => {
+    logger.debug('Admin page requested', { ip: req.ip });
     res.sendFile(join(__dirname, '..', '..', '..', 'public/scoreboard', 'admin.html'));
   });
 
   app.get('/app/newlywed/questions', (req, res) => {
+    logger.debug('Questions page requested', { ip: req.ip, url: req.url });
     res.sendFile(join(__dirname, '..', '..', '..', 'public/scoreboard', 'questions.html'));
-    console.log('Questions page served');
-    console.log('Request URL:', req.url);
   });
-
-  app.get('api',)
-
 
   // 404 handler
   app.use((req, res) => {
+    logger.warn('404 Not Found', { url: req.url, method: req.method, ip: req.ip });
     res.status(404).send('Not Found');
   });
 
   // Error handler
   app.use((err, req, res, next) => {
-    console.error(err.stack);
+    logger.error('Server Error', { 
+      error: err.message, 
+      stack: err.stack,
+      url: req.url,
+      method: req.method,
+      ip: req.ip
+    });
     res.status(500).send('Server Error');
   });
 

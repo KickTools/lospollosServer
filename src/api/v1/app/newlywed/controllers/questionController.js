@@ -312,10 +312,10 @@ class QuestionController {
       // Format data as expected by the client
       const factData = {
         factId,
-        fact: factText,     // Client expects 'fact' property for the text
-        team: teamId,       // Client expects 'team' property (numeric ID)
-        answer: factAnswer,  // The answer to the fact
-        teamName: teamName || teamId // Adding team name for display purposes
+        fact: factText,
+        team: teamId,
+        answer: factAnswer, 
+        teamName: teamName || teamId // 
       };
 
       // Notify connected clients via socket
